@@ -1,0 +1,3 @@
+[submodule "3rd/exceptxx"]
+	path = 3rd/exceptxx
+	url = https://github.com/SergiusTheBest/exceptxx.git
