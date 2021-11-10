@@ -1,8 +1,11 @@
+#include "gflags/gflags.h"
 #include "tc/data/in_memory_bktree.h"
 #include "tc/data/multithread_bktree.h"
 #include <codecvt>
 #include <fstream>
 #include <string>
+
+DEFINE_uint32(tolerance, 2, "tolerance for search");
 
 template<typename Callback>
 void TimeIt(std::string_view label, Callback callback) {
@@ -12,6 +15,7 @@ void TimeIt(std::string_view label, Callback callback) {
 }
 
 int main(int argc, char **argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
   tc::data::MultiThreadBKTree<tc::data::InMemoryBKTree<std::u32string>> tree;
   {
     std::ifstream inFile(argv[1]);
@@ -20,7 +24,7 @@ int main(int argc, char **argv) {
     });
   }
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-  size_t limit = 2;
+  size_t limit = FLAGS_tolerance;
 
   {
     ThreadPool pool(tree.NumTrees());
