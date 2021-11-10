@@ -1,0 +1,2 @@
+add_subdirectory(string_bktree_builder)
+add_subdirectory(string_bktree_searcher)

@@ -30,6 +30,15 @@ class DefaultItemDumper<std::string> {
     os.write(item.data(), item.size());
   }
 };
+template<>
+class DefaultItemDumper<std::u32string> {
+ public:
+  void operator()(std::ostream &os, const std::u32string &item) const {
+    uint32_t sz = item.size();
+    os.write(reinterpret_cast<const char *>(&sz), sizeof(sz));
+    os.write(reinterpret_cast<const char *>(item.data()), item.size() * sizeof(std::u32string::value_type));
+  }
+};
 
 template<>
 class DefaultItemLoader<std::string> {
@@ -40,6 +49,19 @@ class DefaultItemLoader<std::string> {
     std::string result;
     result.resize(sz);
     is.read(result.data(), result.size());
+    return result;
+  }
+};
+
+template<>
+class DefaultItemLoader<std::u32string> {
+ public:
+  std::u32string operator()(std::istream &is) const {
+    uint32_t sz;
+    is.read(reinterpret_cast<char *>(&sz), sizeof(sz));
+    std::u32string result;
+    result.resize(sz);
+    is.read(reinterpret_cast<char *>(result.data()), result.size() * sizeof(std::u32string::value_type));
     return result;
   }
 };

@@ -1,0 +1,2 @@
+add_executable(string_bktree_builder main.cpp)
+target_link_libraries(string_bktree_builder tc_data)
