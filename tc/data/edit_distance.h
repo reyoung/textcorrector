@@ -1,8 +1,9 @@
 #pragma once
-
+#include <algorithm>
+#include <utility>
 namespace tc::data {
-template<typename Container, typename DistType = size_t>
-inline DistType EditDistance(const Container &a, const Container &b) {
+template<typename Container1, typename Container2, typename DistType = size_t>
+inline DistType EditDistance(const Container1 &a, const Container2 &b) {
   size_t m = a.size() + 1;
   size_t n = b.size() + 1;
   std::vector<DistType> d(m * n, 0);
@@ -26,5 +27,14 @@ inline DistType EditDistance(const Container &a, const Container &b) {
   }
   return d.back();
 }
+
+template<typename DistType = size_t>
+class EditDistanceCalculator {
+ public:
+  template<typename Container1, typename Container2>
+  DistType operator()(const Container1 &a, const Container2 &b) const {
+    return EditDistance(a, b);
+  }
+};
 
 }// namespace tc::data
