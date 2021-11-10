@@ -6,7 +6,7 @@ HunterGate(
 )
 project(textcorrector)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 find_package(Catch2 CONFIG REQUIRED)
 add_subdirectory(3rd)
 add_subdirectory(tc)
