@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
   size_t limit = 2;
 
   {
+    ThreadPool pool(tree.NumTrees());
     std::string line;
     using Result = std::pair<std::u32string_view, size_t>;
     std::vector<std::vector<Result>> treeItems;
@@ -34,7 +35,7 @@ int main(int argc, char **argv) {
       }
 
       TimeIt("search", [&] {
-        tree.Search(u32line, limit, [&treeItems](size_t i, std::u32string_view item, size_t d) {
+        tree.Search(pool, u32line, limit, [&treeItems](size_t i, std::u32string_view item, size_t d) {
           treeItems[i].emplace_back(Result{item, d});
           return true;
         });
