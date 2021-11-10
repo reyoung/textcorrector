@@ -57,6 +57,9 @@ class InMemoryBKTree {
   };
 
  public:
+  using value_type = Item;
+  using dist_type = DistT;
+
   InMemoryBKTree() = default;
   void Add(Item item) {
     if (root_ == nullptr) {
@@ -120,7 +123,7 @@ class InMemoryBKTree {
   }
 
  private:
-  void ExtendLoadFrontier(std::queue<LoadHelperItem> *frontier, Node *node, std::istream& is) {
+  void ExtendLoadFrontier(std::queue<LoadHelperItem> *frontier, Node *node, std::istream &is) {
     DefaultItemLoader<size_t> size_loader;
     DefaultItemLoader<DistT> dist_loader;
     size_t n = size_loader(is);

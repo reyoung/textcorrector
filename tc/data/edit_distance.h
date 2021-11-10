@@ -6,7 +6,9 @@ template<typename Container1, typename Container2, typename DistType = size_t>
 inline DistType EditDistance(const Container1 &a, const Container2 &b) {
   size_t m = a.size() + 1;
   size_t n = b.size() + 1;
-  std::vector<DistType> d(m * n, 0);
+  static thread_local std::vector<DistType> d;
+  d.resize(m * n);
+  std::fill(d.begin(), d.end(), 0);
 
   for (size_t i = 1; i < m; ++i) {
     d[i * n] = i;
