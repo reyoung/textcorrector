@@ -5,6 +5,7 @@
 #include <iostream>
 #include <locale>
 #include <string>
+
 DEFINE_uint32(num_tree, 10, "number of subtree");
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);

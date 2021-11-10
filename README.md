@@ -25,3 +25,12 @@ cat TEXT_FILE | string_bktree_builder > DICT_FILE
 ```bash
 ./tc_service --port=8080 --dicts=DICT_NAME:DICT_PATH,DICT_NAME:DICT_PATH,...
 ```
+
+## Docker
+
+* Image: `reyoung/textcorrector:0.1.0`/`reyoung/textcorrector:latest`
+* Commands:
+    * string_bktree_builder
+    * string_bktree_searcher
+    * tc_service
+    

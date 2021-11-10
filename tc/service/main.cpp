@@ -7,6 +7,7 @@
 #include "tc/data/multithread_bktree.h"
 #include <codecvt>
 #include <fstream>
+#include <locale>
 #include <thread>
 #include <unordered_map>
 

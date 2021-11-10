@@ -8,6 +8,7 @@ project(textcorrector)
 
 set(CMAKE_CXX_STANDARD 17)
 find_package(Threads REQUIRED)
+hunter_add_package(Catch)
 find_package(Catch2 CONFIG REQUIRED)
 hunter_add_package(asio)
 find_package(asio CONFIG REQUIRED)

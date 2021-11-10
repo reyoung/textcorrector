@@ -3,6 +3,7 @@
 #include "tc/data/multithread_bktree.h"
 #include <codecvt>
 #include <fstream>
+#include <locale>
 #include <string>
 
 DEFINE_uint32(tolerance, 2, "tolerance for search");
