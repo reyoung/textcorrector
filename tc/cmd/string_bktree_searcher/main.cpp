@@ -8,7 +8,7 @@
 #include <string>
 
 DEFINE_uint32(tolerance, 2, "tolerance for search");
-
+DEFINE_uint32(num_threads, 0, "num threads for search");
 template<typename Callback>
 void TimeIt(std::string_view label, Callback callback) {
   auto now = std::chrono::steady_clock::now();
@@ -28,8 +28,12 @@ int main(int argc, char **argv) {
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
   size_t limit = FLAGS_tolerance;
 
+  if (FLAGS_num_threads == 0) {
+    FLAGS_num_threads = tree.NumTrees();
+  }
+
   {
-    ThreadPool pool(tree.NumTrees());
+    ThreadPool pool(FLAGS_num_threads);
     std::string line;
     using Result = std::pair<std::u32string_view, size_t>;
     std::vector<std::vector<Result>> treeItems;
