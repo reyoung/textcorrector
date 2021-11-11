@@ -2,11 +2,13 @@
 #include "tc/data/in_memory_bktree.h"
 #include "tc/data/multithread_bktree.h"
 #include <codecvt>
+#include <fstream>
 #include <iostream>
 #include <locale>
 #include <string>
 
 DEFINE_uint32(num_tree, 10, "number of subtree");
+DEFINE_string(output, "out.bin", "output file name");
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   std::string line;
@@ -15,5 +17,6 @@ int main(int argc, char **argv) {
   while (std::getline(std::cin, line)) {
     tree.Add(conv_utf8_utf32.from_bytes(line));
   }
-  tree.Dump(std::cout);
+  std::ofstream fout(FLAGS_output.c_str());
+  tree.Dump(fout);
 }

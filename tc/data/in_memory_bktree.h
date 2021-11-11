@@ -89,6 +89,49 @@ class InMemoryBKTree {
     }
   }
 
+  template<typename ItemDumper = DefaultItemDumper<Item>, typename OffsetType = uint16_t>
+  void DumpMMap(std::ostream &os, ItemDumper dumper = DefaultItemDumper<Item>()) const {
+    auto begin = os.tellp();
+    std::map<std::ios::pos_type, OffsetType> offsets;
+    std::map<const Node *, std::ios::pos_type> node_offset_positions;
+    std::queue<const Node *> frontier;
+    frontier.emplace(root_.get());
+    DefaultItemDumper<size_t> size_dumper;
+    DefaultItemDumper<DistT> dist_dumper;
+    DefaultItemDumper<OffsetType> offset_dumper;
+
+    while (!frontier.empty()) {
+      const Node *n = frontier.front();
+      auto nodePosIt = node_offset_positions.find(n);
+      if (nodePosIt != node_offset_positions.end()) {
+        std::ios::pos_type before = nodePosIt->second;
+        OffsetType offset = os.tellp() - before;
+        offsets[before] = offset;
+      }
+
+      frontier.pop();
+      dumper(os, n->item_);
+      size_dumper(os, n->children_.size());
+      for (auto &[d, _] : n->children_) {
+        dist_dumper(os, d);
+      }
+
+      for (auto &[_, c] : n->children_) {
+        const Node *child = c.get();
+        node_offset_positions[child] = os.tellp();
+        offset_dumper(os, 0);
+        frontier.emplace(child);
+      }
+    }
+
+    auto end = os.tellp();
+    for (auto &[pos, off] : offsets) {
+      os.seekp(begin + pos);
+      offset_dumper(os, off);
+    }
+    os.seekp(end);
+  }
+
   template<typename ItemDumper = DefaultItemDumper<Item>>
   void Dump(std::ostream &os, ItemDumper dumper = DefaultItemDumper<Item>()) const {
     std::queue<const Node *> frontier;

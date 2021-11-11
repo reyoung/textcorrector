@@ -37,6 +37,15 @@ class MultiThreadBKTree {
     }
   }
 
+  template<typename ItemDumper = DefaultItemDumper<value_type>, typename OffsetType = uint16_t>
+  void DumpMMap(std::ostream &os, ItemDumper dumper = DefaultItemDumper<value_type>()) {
+    DefaultItemDumper<size_t> size_dumper;
+    size_dumper(os, trees_.size());
+    for (auto &tree : trees_) {
+      tree.template DumpMMap<ItemDumper, OffsetType>(os, dumper);
+    }
+  }
+
   template<typename ItemDumper = DefaultItemDumper<value_type>>
   void Dump(std::ostream &os, ItemDumper dumper = DefaultItemDumper<value_type>()) const {
     DefaultItemDumper<size_t> size_dumper;
