@@ -9,12 +9,15 @@
 
 namespace tc::data {
 
-template<typename Item, typename DistT = size_t, typename DistCalc = EditDistanceCalculator<DistT>>
+template<typename Item, typename DistCalc = EditDistanceCalculator<size_t>>
 class InMemoryBKTree {
+ public:
+  using value_type = Item;
+  using dist_type = typename DistCalc::dist_type;
  private:
   struct Node {
     Item item_;
-    std::map<DistT, std::unique_ptr<Node>> children_;
+    std::map<dist_type, std::unique_ptr<Node>> children_;
 
     explicit Node(Item item) : item_(std::move(item)) {}
 
@@ -32,7 +35,7 @@ class InMemoryBKTree {
     }
 
     template<typename Query, typename Callback, typename ExploreFrontier>
-    bool Search(const DistCalc &calc, const Query &q, DistT limit, Callback callback, ExploreFrontier explore_frontier) const {
+    bool Search(const DistCalc &calc, const Query &q, dist_type limit, Callback callback, ExploreFrontier explore_frontier) const {
       auto d = calc(item_, q);
       if (d <= limit) {
         bool continue_ = callback(item_, d);
@@ -42,8 +45,7 @@ class InMemoryBKTree {
       }
       auto lower_bound = limit > d ? 0 : d - limit;
       auto upper_bound = d + limit;
-      auto up_it = children_.upper_bound(upper_bound);
-      for (auto it = children_.lower_bound(lower_bound); it != children_.end() && it != up_it; ++it) {
+      for (auto it = children_.lower_bound(lower_bound); it != children_.end() && it->first <= upper_bound; ++it) {
         Node *c = it->second.get();
         explore_frontier(c);
       }
@@ -53,12 +55,10 @@ class InMemoryBKTree {
 
   struct LoadHelperItem {
     Node *parent;
-    DistT dist;
+    dist_type dist;
   };
 
  public:
-  using value_type = Item;
-  using dist_type = DistT;
 
   InMemoryBKTree() = default;
   void Add(Item item) {
@@ -70,7 +70,7 @@ class InMemoryBKTree {
   }
 
   template<typename Query, typename Callback>
-  void Search(const Query &q, DistT limit, Callback callback) const {
+  void Search(const Query &q, dist_type limit, Callback callback) const {
     if (root_ == nullptr) {
       return;
     }
@@ -94,7 +94,7 @@ class InMemoryBKTree {
     std::queue<const Node *> frontier;
     frontier.emplace(root_.get());
     DefaultItemDumper<size_t> size_dumper;
-    DefaultItemDumper<DistT> dist_dumper;
+    DefaultItemDumper<dist_type> dist_dumper;
     while (!frontier.empty()) {
       const Node *n = frontier.front();
       frontier.pop();
@@ -126,7 +126,7 @@ class InMemoryBKTree {
  private:
   void ExtendLoadFrontier(std::queue<LoadHelperItem> *frontier, Node *node, std::istream &is) {
     DefaultItemLoader<size_t> size_loader;
-    DefaultItemLoader<DistT> dist_loader;
+    DefaultItemLoader<dist_type> dist_loader;
     size_t n = size_loader(is);
     for (size_t i = 0; i < n; ++i) {
       auto d = dist_loader(is);

@@ -33,6 +33,7 @@ inline DistType EditDistance(const Container1 &a, const Container2 &b) {
 template<typename DistType = size_t>
 class EditDistanceCalculator {
  public:
+  using dist_type = DistType;
   template<typename Container1, typename Container2>
   DistType operator()(const Container1 &a, const Container2 &b) const {
     return EditDistance(a, b);
