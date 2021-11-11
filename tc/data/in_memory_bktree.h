@@ -74,13 +74,14 @@ class InMemoryBKTree {
     if (root_ == nullptr) {
       return;
     }
-    std::stack<Node *> frontier;
-    frontier.emplace(root_.get());
+    static thread_local std::vector<Node *> frontier;
+    frontier.clear();
+    frontier.emplace_back(root_.get());
     while (!frontier.empty()) {
-      auto n = frontier.top();
-      frontier.pop();
-      auto continue_ = n->Search(calc_, q, limit, callback, [&frontier](Node *n) {
-        frontier.emplace(n);
+      auto n = frontier.back();
+      frontier.pop_back();
+      auto continue_ = n->Search(calc_, q, limit, callback, [](Node *n) {
+        frontier.emplace_back(n);
       });
       if (!continue_) {
         return;
