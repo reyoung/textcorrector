@@ -17,7 +17,7 @@ void TimeIt(std::string_view label, Callback callback) {
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  tc::data::MultiThreadBKTree<tc::data::InMemoryBKTree<std::u32string>> tree;
+  tc::data::MultiThreadBKTree<tc::data::InMemoryBKTree<std::u32string, tc::data::EditDistanceCalculator<uint8_t>>> tree;
   {
     std::ifstream inFile(argv[1]);
     TimeIt("load", [&] {
