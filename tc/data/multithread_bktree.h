@@ -21,19 +21,28 @@ class MultiThreadBKTree {
   }
 
   template<typename Query, typename Callback>
-  void Search(ThreadPool &pool, const Query &q, dist_type limit, Callback callback) const {
-    std::vector<std::future<void>> futures_;
-    for (size_t i = 0; i < trees_.size(); ++i) {
-      futures_.emplace_back(pool.enqueue([i, this, &q, &limit, &callback] {
+  void Search(ThreadPool *pool, const Query &q, dist_type limit, Callback callback) const {
+    if (pool != nullptr) {
+      std::vector<std::future<void>> futures_;
+      for (size_t i = 0; i < trees_.size(); ++i) {
+        futures_.emplace_back(pool->enqueue([i, this, &q, &limit, &callback] {
+          auto &tree = trees_[i];
+          tree.Search(q, limit, [&](const value_type &item, dist_type d) {
+            return callback(i, item, d);
+          });
+        }));
+      }
+
+      for (auto &fut : futures_) {
+        fut.wait();
+      }
+    } else {
+      for (size_t i = 0; i < trees_.size(); ++i) {
         auto &tree = trees_[i];
         tree.Search(q, limit, [&](const value_type &item, dist_type d) {
           return callback(i, item, d);
         });
-      }));
-    }
-
-    for (auto &fut : futures_) {
-      fut.wait();
+      }
     }
   }
 

@@ -28,12 +28,11 @@ int main(int argc, char **argv) {
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
   size_t limit = FLAGS_tolerance;
 
-  if (FLAGS_num_threads == 0) {
-    FLAGS_num_threads = tree.NumTrees();
-  }
-
   {
-    ThreadPool pool(FLAGS_num_threads);
+    std::unique_ptr<ThreadPool> pool;
+    if (FLAGS_num_threads != 0) {
+      pool = std::make_unique<ThreadPool>(FLAGS_num_threads);
+    }
     std::string line;
     using Result = std::pair<std::u32string_view, size_t>;
     std::vector<std::vector<Result>> treeItems;
@@ -46,7 +45,7 @@ int main(int argc, char **argv) {
 
       TimeIt("search", [&] {
         ProfilerStart("search.bin");
-        tree.Search(pool, u32line, limit, [&treeItems](size_t i, std::u32string_view item, size_t d) {
+        tree.Search(pool.get(), u32line, limit, [&treeItems](size_t i, std::u32string_view item, size_t d) {
           treeItems[i].emplace_back(Result{item, d});
           return true;
         });
