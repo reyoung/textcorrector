@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
                 reqPool.enqueue([q, tree, req, tolerance, &workerPool, &conv_utf8_utf32] {
                   std::vector<nlohmann::json> response(tree->NumTrees());
                   auto u32q = conv_utf8_utf32.from_bytes(q);
-                  tree->Search(workerPool, u32q, tolerance, [&response, &conv_utf8_utf32](size_t i, std::u32string_view val, size_t d) {
+                  tree->Search(&workerPool, u32q, tolerance, [&response, &conv_utf8_utf32](size_t i, std::u32string_view val, size_t d) {
                     response[i].emplace_back(nlohmann::json{{conv_utf8_utf32.to_bytes(val.data(), val.data() + val.size()), d}});
                     return true;
                   });

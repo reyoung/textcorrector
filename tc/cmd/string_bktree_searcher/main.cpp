@@ -1,5 +1,4 @@
 #include "gflags/gflags.h"
-#include "gperftools/profiler.h"
 #include "tc/data/in_memory_bktree.h"
 #include "tc/data/multithread_bktree.h"
 #include <codecvt>
@@ -44,13 +43,10 @@ int main(int argc, char **argv) {
       }
 
       TimeIt("search", [&] {
-        ProfilerStart("search.bin");
         tree.Search(pool.get(), u32line, limit, [&treeItems](size_t i, std::u32string_view item, size_t d) {
           treeItems[i].emplace_back(Result{item, d});
           return true;
         });
-        ProfilerFlush();
-        ProfilerStop();
       });
 
       for (auto &items : treeItems) {

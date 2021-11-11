@@ -24,9 +24,5 @@ hunter_add_package(http-parser)
 find_package(http-parser CONFIG REQUIRED)
 hunter_add_package(nlohmann_json)
 find_package(nlohmann_json CONFIG REQUIRED)
-
-find_package(Gperftools REQUIRED)
-
-
 add_subdirectory(3rd)
 add_subdirectory(tc)
