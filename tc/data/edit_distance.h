@@ -9,7 +9,8 @@ inline DistType EditDistance(const Container1 &a, const Container2 &b) {
   }
   size_t min_size = a.size();
   size_t max_size = b.size();
-  std::vector<DistType> lev_dist(min_size + 1);
+  static thread_local std::vector<DistType> lev_dist(min_size + 1);
+  lev_dist.clear();
   lev_dist[0] = 0;
   for (size_t i = 1; i <= min_size; ++i) {
     lev_dist[i] = lev_dist[i - 1] + 1;
