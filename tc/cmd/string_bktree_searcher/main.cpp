@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     });
   }
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-  size_t limit = FLAGS_tolerance;
+  uint8_t limit = FLAGS_tolerance;
 
   {
     std::unique_ptr<ThreadPool> pool;

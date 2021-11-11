@@ -39,7 +39,7 @@ class EditDistanceCalculator {
   using dist_type = DistType;
   template<typename Container1, typename Container2>
   DistType operator()(const Container1 &a, const Container2 &b) const {
-    return EditDistance(a, b);
+    return EditDistance<Container1, Container2, DistType>(a, b);
   }
 };
 
