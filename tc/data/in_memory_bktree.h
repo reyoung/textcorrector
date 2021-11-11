@@ -2,6 +2,8 @@
 #include "tc/base/except.h"
 #include "tc/data/default_item_dumper_loader.h"
 #include "tc/data/edit_distance.h"
+#include "tc/data/tree_attribute.h"
+
 #include <map>
 #include <queue>
 #include <stack>
@@ -59,6 +61,9 @@ class InMemoryBKTree {
  public:
   using value_type = Item;
   using dist_type = DistT;
+  enum {
+    tree_attr = 0
+  };
 
   InMemoryBKTree() = default;
   void Add(Item item) {
@@ -91,7 +96,6 @@ class InMemoryBKTree {
 
   template<typename ItemDumper = DefaultItemDumper<Item>, typename OffsetType = uint16_t>
   void DumpMMap(std::ostream &os, ItemDumper dumper = DefaultItemDumper<Item>()) const {
-    auto begin = os.tellp();
     std::map<std::ios::pos_type, OffsetType> offsets;
     std::map<const Node *, std::ios::pos_type> node_offset_positions;
     std::queue<const Node *> frontier;
@@ -99,17 +103,19 @@ class InMemoryBKTree {
     DefaultItemDumper<size_t> size_dumper;
     DefaultItemDumper<DistT> dist_dumper;
     DefaultItemDumper<OffsetType> offset_dumper;
-
     while (!frontier.empty()) {
       const Node *n = frontier.front();
+      frontier.pop();
+
       auto nodePosIt = node_offset_positions.find(n);
       if (nodePosIt != node_offset_positions.end()) {
         std::ios::pos_type before = nodePosIt->second;
+        auto offsetToSet = os.tellp() - before;
+        TC_ENFORCE(offsetToSet < std::numeric_limits<OffsetType>::max());
         OffsetType offset = os.tellp() - before;
         offsets[before] = offset;
       }
 
-      frontier.pop();
       dumper(os, n->item_);
       size_dumper(os, n->children_.size());
       for (auto &[d, _] : n->children_) {
@@ -126,7 +132,7 @@ class InMemoryBKTree {
 
     auto end = os.tellp();
     for (auto &[pos, off] : offsets) {
-      os.seekp(begin + pos);
+      os.seekp(pos);
       offset_dumper(os, off);
     }
     os.seekp(end);

@@ -1,5 +1,6 @@
 #include "gflags/gflags.h"
 #include "tc/data/in_memory_bktree.h"
+#include "tc/data/mmap_bktree.h"
 #include "tc/data/multithread_bktree.h"
 #include <codecvt>
 #include <fstream>
@@ -17,18 +18,18 @@ void TimeIt(std::string_view label, Callback callback) {
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  tc::data::MultiThreadBKTree<tc::data::InMemoryBKTree<std::u32string>> tree;
+  tc::data::MultiThreadBKTree<tc::data::MMapBKTreeHolder<std::u32string_view, size_t, uint32_t>> tree;
   {
     std::ifstream inFile(argv[1]);
     TimeIt("load", [&] {
-      tree.Load(inFile);
+      tree.LoadMMap(argv[1]);
     });
   }
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
   size_t limit = FLAGS_tolerance;
 
   {
-    ThreadPool pool(tree.NumTrees());
+    ThreadPool pool(1);
     std::string line;
     using Result = std::pair<std::u32string_view, size_t>;
     std::vector<std::vector<Result>> treeItems;

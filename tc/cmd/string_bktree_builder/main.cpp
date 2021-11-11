@@ -18,5 +18,5 @@ int main(int argc, char **argv) {
     tree.Add(conv_utf8_utf32.from_bytes(line));
   }
   std::ofstream fout(FLAGS_output.c_str());
-  tree.Dump(fout);
+  tree.DumpMMap<tc::data::DefaultItemDumper<std::u32string>, uint64_t>(fout);
 }
