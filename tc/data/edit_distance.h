@@ -4,30 +4,30 @@
 namespace tc::data {
 template<typename Container1, typename Container2, typename DistType = size_t>
 inline DistType EditDistance(const Container1 &a, const Container2 &b) {
-  size_t m = a.size() + 1;
-  size_t n = b.size() + 1;
-  static thread_local std::vector<DistType> d;
-  d.resize(m * n);
-  std::fill(d.begin(), d.end(), 0);
-
-  for (size_t i = 1; i < m; ++i) {
-    d[i * n] = i;
+  if (a.size() > b.size()) {
+    return EditDistance<Container2, Container1, DistType>(b, a);
   }
-
-  for (size_t j = 1; j < n; ++j) {
-    d[j] = j;
+  size_t min_size = a.size();
+  size_t max_size = b.size();
+  std::vector<DistType> lev_dist(min_size + 1);
+  for (size_t i = 0; i <= min_size; ++i) {
+    lev_dist[i] = i;
   }
-
-  for (size_t j = 1; j < n; ++j) {
-    for (size_t i = 1; i < m; ++i) {
-      DistType cost = a[i - 1] == b[j - 1] ? 0 : 1;
-      auto deletion = d[(i - 1) * n + j] + 1;
-      auto insertion = d[i * n + j - 1] + 1;
-      auto subsitution = d[(i - 1) * n + j - 1] + cost;
-      d[i * n + j] = std::min(deletion, std::min(insertion, subsitution));
+  for (size_t j = 1; j < max_size; ++j) {
+    DistType previous_diagonal = lev_dist[0];
+    DistType previous_diagonal_save;
+    ++lev_dist[0];
+    for (size_t i = 1; i <= min_size; ++i) {
+      previous_diagonal_save = lev_dist[i];
+      if (a[i - 1] == b[j - 1]) {
+        lev_dist[i] = previous_diagonal;
+      } else {
+        lev_dist[i] = std::min(std::min(lev_dist[i - 1], lev_dist[i]), previous_diagonal) + 1;
+      }
+      previous_diagonal = previous_diagonal_save;
     }
   }
-  return d.back();
+  return lev_dist[min_size];
 }
 
 template<typename DistType = size_t>
