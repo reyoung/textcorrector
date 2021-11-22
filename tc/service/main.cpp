@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     FLAGS_num_worker_thread = std::thread::hardware_concurrency();
   }
 
-  using Tree = tc::data::MultiThreadBKTree<tc::data::InMemoryBKTree<std::u32string>>;
+  using Tree = tc::data::MultiThreadBKTree<tc::data::InMemoryBKTree<std::u32string, tc::data::EditDistanceCalculator<uint8_t>>>;
   std::unordered_map<std::string, Tree> trees;
   {
     auto dicts = SplitStrBy(FLAGS_dicts, ',');
